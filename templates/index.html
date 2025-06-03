@@ -1,49 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Jedi Library</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
-        header { display: flex; justify-content: space-between; align-items: center; }
-        form { margin-bottom: 20px; }
-        .book { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-        .book h2 { margin: 0; }
-        .book p { margin: 5px 0; }
-        nav a { margin: 0 5px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Jedi Library</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Jedi Library</h1>
-        <a href="{{ url_for('upload') }}">Upload a Book</a>
-    </header>
+  <h1>📘 Jedi Library</h1>
 
-    <form method="get" action="{{ url_for('index') }}">
-        <input type="text" name="q" placeholder="Search by title or author" value="{{ search_query }}">
-        <select name="category">
-            <option value="">All Categories</option>
-            {% for cat in categories %}
-                <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Search</button>
-    </form>
+  <!-- Search and Category -->
+  <form method="get" action="/">
+    <input type="text" name="q" placeholder="Search books..." value="{{ request.args.get('q', '') }}">
+    <select name="category">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Search</button>
+  </form>
 
-    {% if books %}
-        {% for book in books %}
-        <div class="book">
-            <h2>{{ book.title }} ({{ book.year or "N/A" }})</h2>
-            <p><strong>Author:</strong> {{ book.author }}</p>
-            <p><strong>Category:</strong> {{ book.category }}</p>
-            <p>{{ book.summary }}</p>
-            <p><strong>Tags:</strong> {{ book.tags | join(", ") }}</p>
-            <p><a href="{{ url_for('uploaded_file', filename=book.filename) }}" target="_blank">Read/Download</a></p>
-        </div>
-        {% endfor %}
-    {% else %}
-        <p>No books found.</p>
-    {% endif %}
+  <!-- Books List -->
+  <div class="book-grid">
+    {% for book in books %}
+      <div class="book-card">
+        <h3>{{ book.title }}</h3>
+        <p><strong>Author:</strong> {{ book.author }}</p>
+        <p><strong>Year:</strong> {{ book.year }}</p>
+        <p><strong>Category:</strong> {{ book.category }}</p>
+        <p>
+          <strong>Tags:</strong>
+          {% for tag in book.tags %}
+            <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </p>
+        <a href="{{ url_for('static', filename='uploads/' + book.filename) }}" target="_blank">📖 View</a>
+        <a href="{{ url_for('static', filename='uploads/' + book.filename) }}" download>⬇️ Download</a>
+      </div>
+    {% endfor %}
+  </div>
+
+  <a href="{{ url_for('upload') }}">➕ Upload a Book</a>
 </body>
 </html>
 

@@ -27,21 +27,20 @@ def save_books(books):
     with open(METADATA_FILE, 'w') as f:
         json.dump(books, f, indent=2)
 
-@app.route("/")
+@app.route('/')
 def index():
+    query = request.args.get('q', '').lower()
+    selected_category = request.args.get('category', '')
     books = load_books()
-    search_query = request.args.get('q', '').lower()
-    category_filter = request.args.get('category', '')
-    filtered_books = []
 
-    for book in books:
-        matches_search = search_query in book['title'].lower() or search_query in book['author'].lower()
-        matches_category = (category_filter == '' or book['category'] == category_filter)
-        if matches_search and matches_category:
-            filtered_books.append(book)
+    if query:
+        books = [b for b in books if query in b['title'].lower() or query in b['author'].lower()]
 
-    categories = sorted(set(book['category'] for book in books))
-    return render_template("index.html", books=filtered_books, categories=categories, selected_category=category_filter, search_query=search_query)
+    if selected_category:
+        books = [b for b in books if b['category'] == selected_category]
+
+    categories = sorted(set(b['category'] for b in load_books()))
+    return render_template('index.html', books=books, categories=categories, selected_category=selected_category)
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
