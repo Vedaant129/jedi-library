@@ -1,44 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Upload a Book - Jedi Library</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-        form { display: flex; flex-direction: column; }
-        label { margin-top: 10px; }
-        input, textarea, select { padding: 8px; margin-top: 5px; }
-        button { margin-top: 20px; padding: 10px; font-size: 16px; }
-        a { margin-top: 15px; display: inline-block; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Upload a Book</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Upload a New Book</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <label>Book File (PDF, EPUB, MOBI):
-            <input type="file" name="file" required />
-        </label>
-        <label>Title:
-            <input type="text" name="title" required />
-        </label>
-        <label>Author:
-            <input type="text" name="author" required />
-        </label>
-        <label>Year:
-            <input type="text" name="year" />
-        </label>
-        <label>Category:
-            <input type="text" name="category" />
-        </label>
-        <label>Summary:
-            <textarea name="summary" rows="4"></textarea>
-        </label>
-        <label>Tags (comma separated):
-            <input type="text" name="tags" />
-        </label>
-        <button type="submit">Upload Book</button>
-    </form>
-    <a href="{{ url_for('index') }}">Back to Library</a>
+  <h1>📤 Upload a New Book</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    <input type="text" name="title" placeholder="Title" required><br>
+    <input type="text" name="author" placeholder="Author" required><br>
+    <input type="number" name="year" placeholder="Year" required><br>
+    <input type="text" name="category" placeholder="Category" required><br>
+    <input type="text" name="tags" placeholder="Tags (comma-separated)"><br>
+    <input type="file" name="file" accept=".pdf" required><br>
+    <button type="submit">Upload</button>
+  </form>
+
+  <a class="back-link" href="{{ url_for('index') }}">🔙 Back to Library</a>
 </body>
 </html>
-

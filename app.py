@@ -1,36 +1,33 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for
 import json
 import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-
-# Config
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
-METADATA_FILE = os.path.join(os.path.dirname(__file__), 'metadata.json')
-ALLOWED_EXTENSIONS = {'pdf', 'epub', 'mobi'}
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+BOOKS_FILE = 'books.json'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
+# Load books from JSON
 def load_books():
-    if os.path.exists(METADATA_FILE):
-        with open(METADATA_FILE, 'r') as f:
-            return json.load(f)
-    else:
+    if not os.path.exists(BOOKS_FILE):
         return []
+    with open(BOOKS_FILE, 'r') as f:
+        return json.load(f)
 
+# Save books to JSON
 def save_books(books):
-    with open(METADATA_FILE, 'w') as f:
+    with open(BOOKS_FILE, 'w') as f:
         json.dump(books, f, indent=2)
 
 @app.route('/')
 def index():
     query = request.args.get('q', '').lower()
     selected_category = request.args.get('category', '')
+    tag_filter = request.args.get('tag', '')
+    sort_by = request.args.get('sort', '')
+
     books = load_books()
 
     if query:
@@ -39,45 +36,49 @@ def index():
     if selected_category:
         books = [b for b in books if b['category'] == selected_category]
 
-    categories = sorted(set(b['category'] for b in load_books()))
+    if tag_filter:
+        books = [b for b in books if tag_filter in b.get('tags', [])]
+
+    if sort_by == 'title':
+        books.sort(key=lambda x: x['title'].lower())
+    elif sort_by == 'author':
+        books.sort(key=lambda x: x['author'].lower())
+    elif sort_by == 'year':
+        books.sort(key=lambda x: x.get('year', 0), reverse=True)
+
+    categories = sorted(set(b['category'] for b in load_books() if b.get('category')))
     return render_template('index.html', books=books, categories=categories, selected_category=selected_category)
 
-@app.route("/upload", methods=["GET", "POST"])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    if request.method == "POST":
-        file = request.files.get('file')
-        title = request.form.get('title')
-        author = request.form.get('author')
-        year = request.form.get('year')
-        summary = request.form.get('summary')
-        category = request.form.get('category')
-        tags = request.form.get('tags', '')
+    if request.method == 'POST':
+        title = request.form['title']
+        author = request.form['author']
+        year = int(request.form['year'])
+        category = request.form['category']
+        tags = [t.strip() for t in request.form['tags'].split(',') if t.strip()]
+        file = request.files['file']
 
-        if not file or not allowed_file(file.filename):
-            return "Invalid or missing file", 400
+        if file and title and author:
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
 
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            books = load_books()
+            books.append({
+                'title': title,
+                'author': author,
+                'year': year,
+                'category': category,
+                'tags': tags,
+                'filename': filename
+            })
+            save_books(books)
 
-        books = load_books()
-        books.append({
-            "filename": filename,
-            "title": title,
-            "author": author,
-            "year": int(year) if year.isdigit() else None,
-            "summary": summary,
-            "tags": [tag.strip() for tag in tags.split(',') if tag.strip()],
-            "category": category
-        })
-        save_books(books)
-        return redirect(url_for('index'))
+            return redirect(url_for('index'))
 
-    return render_template("upload.html")
+    return render_template('upload.html')
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
+if __name__ == '__main__':
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    app.run(debug=True)

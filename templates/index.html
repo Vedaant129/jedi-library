@@ -4,23 +4,33 @@
   <meta charset="UTF-8">
   <title>Jedi Library</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
   <h1>📘 Jedi Library</h1>
 
-  <!-- Search and Category -->
+  <!-- Search and Filters -->
   <form method="get" action="/">
     <input type="text" name="q" placeholder="Search books..." value="{{ request.args.get('q', '') }}">
+    
     <select name="category">
       <option value="">All Categories</option>
       {% for cat in categories %}
         <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
       {% endfor %}
     </select>
+
+    <select name="sort">
+      <option value="">Sort</option>
+      <option value="title">Title</option>
+      <option value="author">Author</option>
+      <option value="year">Year</option>
+    </select>
+
     <button type="submit">Search</button>
   </form>
 
-  <!-- Books List -->
+  <!-- Book List -->
   <div class="book-grid">
     {% for book in books %}
       <div class="book-card">
@@ -31,7 +41,7 @@
         <p>
           <strong>Tags:</strong>
           {% for tag in book.tags %}
-            <span class="tag">{{ tag }}</span>
+            <a class="tag" href="?tag={{ tag }}">{{ tag }}</a>
           {% endfor %}
         </p>
         <a href="{{ url_for('static', filename='uploads/' + book.filename) }}" target="_blank">📖 View</a>
@@ -40,7 +50,6 @@
     {% endfor %}
   </div>
 
-  <a href="{{ url_for('upload') }}">➕ Upload a Book</a>
+  <a class="upload-link" href="{{ url_for('upload') }}">➕ Upload a Book</a>
 </body>
 </html>
-
