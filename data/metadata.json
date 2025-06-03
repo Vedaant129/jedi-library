@@ -1,0 +1,11 @@
+[
+  {
+    "filename": "mybook.pdf",
+    "title": "The Jedi Path",
+    "author": "Luke Skywalker",
+    "year": 2024,
+    "summary": "A guide to Jedi philosophy.",
+    "tags": ["Jedi", "Philosophy"],
+    "category": "Fantasy"
+  }
+]

@@ -1,14 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>📤 Upload Book</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <title>Upload a Book - Jedi Library</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+        form { display: flex; flex-direction: column; }
+        label { margin-top: 10px; }
+        input, textarea, select { padding: 8px; margin-top: 5px; }
+        button { margin-top: 20px; padding: 10px; font-size: 16px; }
+        a { margin-top: 15px; display: inline-block; }
+    </style>
 </head>
-<body class="bg-gray-800 text-white p-4">
-  <h1 class="text-3xl mb-4">📤 Upload a Book</h1>
-  <form action="/upload" method="post" enctype="multipart/form-data" class="space-y-4">
-    <input type="file" name="book" accept="application/pdf" class="block">
-    <button type="submit" class="bg-green-600 px-4 py-2 rounded hover:bg-green-500">Upload</button>
-  </form>
+<body>
+    <h1>Upload a New Book</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label>Book File (PDF, EPUB, MOBI):
+            <input type="file" name="file" required />
+        </label>
+        <label>Title:
+            <input type="text" name="title" required />
+        </label>
+        <label>Author:
+            <input type="text" name="author" required />
+        </label>
+        <label>Year:
+            <input type="text" name="year" />
+        </label>
+        <label>Category:
+            <input type="text" name="category" />
+        </label>
+        <label>Summary:
+            <textarea name="summary" rows="4"></textarea>
+        </label>
+        <label>Tags (comma separated):
+            <input type="text" name="tags" />
+        </label>
+        <button type="submit">Upload Book</button>
+    </form>
+    <a href="{{ url_for('index') }}">Back to Library</a>
 </body>
 </html>
+

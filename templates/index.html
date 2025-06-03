@@ -1,18 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>📚 Jedi Book Archive</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <title>Jedi Library</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; }
+        form { margin-bottom: 20px; }
+        .book { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .book h2 { margin: 0; }
+        .book p { margin: 5px 0; }
+        nav a { margin: 0 5px; }
+    </style>
 </head>
-<body class="bg-gray-900 text-white p-4">
-  <h1 class="text-4xl mb-6">📚 Jedi Book Archive</h1>
-  <a href="/upload" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500">Upload Book</a>
-  <ul class="mt-4 space-y-2">
-    {% for book in books %}
-    <li>
-      <a href="{{ url_for('read', filename=book) }}" class="text-green-300 hover:underline">{{ book }}</a>
-    </li>
-    {% endfor %}
-  </ul>
+<body>
+    <header>
+        <h1>Jedi Library</h1>
+        <a href="{{ url_for('upload') }}">Upload a Book</a>
+    </header>
+
+    <form method="get" action="{{ url_for('index') }}">
+        <input type="text" name="q" placeholder="Search by title or author" value="{{ search_query }}">
+        <select name="category">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if books %}
+        {% for book in books %}
+        <div class="book">
+            <h2>{{ book.title }} ({{ book.year or "N/A" }})</h2>
+            <p><strong>Author:</strong> {{ book.author }}</p>
+            <p><strong>Category:</strong> {{ book.category }}</p>
+            <p>{{ book.summary }}</p>
+            <p><strong>Tags:</strong> {{ book.tags | join(", ") }}</p>
+            <p><a href="{{ url_for('uploaded_file', filename=book.filename) }}" target="_blank">Read/Download</a></p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No books found.</p>
+    {% endif %}
 </body>
 </html>
+
